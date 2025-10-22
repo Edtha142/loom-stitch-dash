@@ -6,14 +6,50 @@ import { KPIPanel } from '@/components/KPIPanel';
 import { MachineComparison } from '@/components/MachineComparison';
 import { AlertsList } from '@/components/AlertsList';
 import { DailySummary } from '@/components/DailySummary';
+import { EventClassification } from '@/components/EventClassification';
 import { mockData } from '@/data/mockData';
-import { DashboardData } from '@/types/machine';
+import { DashboardData, AlertType } from '@/types/machine';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [data, setData] = useState<DashboardData>(mockData);
   const [selectedMachine, setSelectedMachine] = useState('m1');
   const [isConnected, setIsConnected] = useState(true);
   const [loading, setLoading] = useState(true);
+
+  const handleClassifyEvent = (eventId: string | number, type: AlertType) => {
+    setData(prevData => ({
+      ...prevData,
+      alerts: prevData.alerts.map(alert => 
+        alert.id === eventId 
+          ? { ...alert, type, status: 'resolved' as const, priority: type === 'thread_break' ? 'HIGH' as const : 'LOW' as const }
+          : alert
+      )
+    }));
+    
+    toast({
+      title: "Evento clasificado",
+      description: "El evento ha sido clasificado correctamente.",
+    });
+  };
+
+  const handleResolveAlert = (alertId: string | number) => {
+    setData(prevData => ({
+      ...prevData,
+      alerts: prevData.alerts.map(alert => 
+        alert.id === alertId 
+          ? { ...alert, status: 'resolved' as const }
+          : alert
+      )
+    }));
+    
+    toast({
+      title: "Alerta resuelta",
+      description: "La alerta ha sido marcada como resuelta.",
+    });
+  };
+
+  const pendingEvents = data.alerts.filter(a => a.type === 'unknown' && a.status === 'active');
 
   // Simulate initial loading
   useEffect(() => {
@@ -118,7 +154,7 @@ const Index = () => {
           <div className="lg:col-span-1">
             <div className="bg-card rounded-lg border border-border p-6 mb-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">KPIs del Turno Actual</h3>
-              <KPIPanel kpis={data.kpis} />
+              <KPIPanel kpis={data.kpis} eventStats={data.eventStats} />
             </div>
           </div>
 
@@ -129,10 +165,20 @@ const Index = () => {
 
           {/* Panel 5: Alerts List - 1 column */}
           <div className="lg:col-span-1">
-            <AlertsList alerts={data.alerts} />
+            <AlertsList alerts={data.alerts} onResolveAlert={handleResolveAlert} />
           </div>
 
-          {/* Panel 6: Daily Summary - Full width or adjust as needed */}
+          {/* Panel 6: Event Classification - 2 columns */}
+          {pendingEvents.length > 0 && (
+            <div className="lg:col-span-2">
+              <EventClassification 
+                pendingEvents={pendingEvents} 
+                onClassify={handleClassifyEvent}
+              />
+            </div>
+          )}
+
+          {/* Panel 7: Daily Summary - Full width or adjust as needed */}
           <div className="lg:col-span-3">
             <DailySummary summary={data.dailySummary} />
           </div>

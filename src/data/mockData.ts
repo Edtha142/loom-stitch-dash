@@ -62,55 +62,113 @@ export const mockData: DashboardData = {
   },
   alerts: [
     {
+      id: 1,
       timestamp: '14:35:22',
       type: 'thread_break',
       machine: 'Máquina 1',
-      duration: 3,
-      status: 'resolved'
+      duration: 180,
+      status: 'resolved',
+      priority: 'HIGH',
+      needsAlert: true
     },
     {
-      timestamp: '13:20:15',
-      type: 'stopped',
+      id: 2,
+      timestamp: '14:20:15',
+      type: 'frame_change',
       machine: 'Máquina 2',
-      duration: 18,
-      status: 'resolved'
+      duration: 420,
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
     },
     {
-      timestamp: '12:45:00',
-      type: 'thread_break',
-      machine: 'Máquina 1',
-      duration: 2,
-      status: 'resolved'
-    },
-    {
-      timestamp: '11:30:44',
-      type: 'anomaly',
+      id: 3,
+      timestamp: '13:45:00',
+      type: 'design_change',
       machine: 'Máquina 3',
-      duration: 1,
-      status: 'resolved'
+      duration: 900,
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
     },
     {
-      timestamp: '10:15:30',
+      id: 4,
+      timestamp: '13:10:30',
+      type: 'thread_change',
+      machine: 'Máquina 1',
+      duration: 150,
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
+    },
+    {
+      id: 5,
+      timestamp: '12:55:10',
+      type: 'unknown',
+      machine: 'Máquina 4',
+      duration: 240,
+      status: 'active',
+      priority: 'MEDIUM',
+      needsAlert: false
+    },
+    {
+      id: 6,
+      timestamp: '12:30:00',
       type: 'thread_break',
       machine: 'Máquina 1',
-      duration: 4,
-      status: 'resolved'
+      duration: 165,
+      status: 'resolved',
+      priority: 'HIGH',
+      needsAlert: true
     },
     {
-      timestamp: '09:45:12',
+      id: 7,
+      timestamp: '11:45:00',
+      type: 'frame_change',
+      machine: 'Máquina 3',
+      duration: 380,
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
+    },
+    {
+      id: 8,
+      timestamp: '10:30:00',
       type: 'thread_break',
       machine: 'Máquina 2',
-      duration: 2,
-      status: 'resolved'
+      duration: 195,
+      status: 'resolved',
+      priority: 'HIGH',
+      needsAlert: true
     },
     {
-      timestamp: '08:20:00',
+      id: 9,
+      timestamp: '09:15:00',
+      type: 'thread_change',
+      machine: 'Máquina 4',
+      duration: 130,
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
+    },
+    {
+      id: 10,
+      timestamp: '08:00:00',
       type: 'info',
       machine: 'Sistema',
       duration: 0,
-      status: 'resolved'
-    },
+      status: 'resolved',
+      priority: 'LOW',
+      needsAlert: false
+    }
   ],
+  eventStats: {
+    threadBreaks: 6,
+    frameChanges: 12,
+    designChanges: 3,
+    threadChanges: 8,
+    unknown: 1
+  },
   dailySummary: {
     running: 78,
     idle: 12,
