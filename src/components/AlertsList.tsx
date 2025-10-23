@@ -1,5 +1,4 @@
 import { Alert, AlertType } from '@/types/machine';
-import { AlertCircle, AlertTriangle, Zap, Info, RefreshCw, Palette, Scissors } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 
@@ -8,74 +7,74 @@ interface AlertsListProps {
   onResolveAlert?: (alertId: string | number) => void;
 }
 
+const eventConfig = {
+  thread_break: {
+    emoji: '🔴',
+    label: 'Rotura de hilo',
+    color: 'bg-red-50 dark:bg-red-950/20 border-red-400 dark:border-red-800',
+    textColor: 'text-red-800 dark:text-red-300',
+    priority: 'HIGH'
+  },
+  frame_change: {
+    emoji: '🔄',
+    label: 'Cambio de bastidor',
+    color: 'bg-blue-50 dark:bg-blue-950/20 border-blue-400 dark:border-blue-800',
+    textColor: 'text-blue-800 dark:text-blue-300',
+    priority: 'LOW'
+  },
+  design_change: {
+    emoji: '🎨',
+    label: 'Cambio de diseño',
+    color: 'bg-purple-50 dark:bg-purple-950/20 border-purple-400 dark:border-purple-800',
+    textColor: 'text-purple-800 dark:text-purple-300',
+    priority: 'LOW'
+  },
+  thread_change: {
+    emoji: '🧵',
+    label: 'Cambio de hilo',
+    color: 'bg-amber-50 dark:bg-amber-950/20 border-amber-400 dark:border-amber-800',
+    textColor: 'text-amber-800 dark:text-amber-300',
+    priority: 'LOW'
+  },
+  fluctuation: {
+    emoji: '⚡',
+    label: 'Fluctuación',
+    color: 'bg-gray-50 dark:bg-gray-950/20 border-gray-400 dark:border-gray-800',
+    textColor: 'text-gray-800 dark:text-gray-300',
+    priority: 'IGNORE'
+  },
+  stopped: {
+    emoji: '🚨',
+    label: 'Máquina detenida',
+    color: 'bg-red-50 dark:bg-red-950/20 border-red-400 dark:border-red-800',
+    textColor: 'text-red-800 dark:text-red-300',
+    priority: 'HIGH'
+  },
+  anomaly: {
+    emoji: '⚡',
+    label: 'Corriente anómala',
+    color: 'bg-orange-50 dark:bg-orange-950/20 border-orange-400 dark:border-orange-800',
+    textColor: 'text-orange-800 dark:text-orange-300',
+    priority: 'MEDIUM'
+  },
+  info: {
+    emoji: 'ℹ️',
+    label: 'Información',
+    color: 'bg-cyan-50 dark:bg-cyan-950/20 border-cyan-400 dark:border-cyan-800',
+    textColor: 'text-cyan-800 dark:text-cyan-300',
+    priority: 'LOW'
+  },
+  unknown: {
+    emoji: '❓',
+    label: 'Sin clasificar',
+    color: 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-400 dark:border-yellow-800',
+    textColor: 'text-yellow-800 dark:text-yellow-300',
+    priority: 'MEDIUM'
+  }
+};
+
 export function AlertsList({ alerts, onResolveAlert }: AlertsListProps) {
   const [filter, setFilter] = useState<AlertType | 'all'>('all');
-
-  const eventConfig = {
-    thread_break: {
-      icon: <AlertTriangle className="w-4 h-4" />,
-      label: 'Rotura de hilo',
-      color: 'bg-destructive/10 border-destructive/30',
-      textColor: 'text-destructive',
-      badgeColor: 'bg-destructive text-destructive-foreground'
-    },
-    frame_change: {
-      icon: <RefreshCw className="w-4 h-4" />,
-      label: 'Cambio de bastidor',
-      color: 'bg-info/10 border-info/30',
-      textColor: 'text-info',
-      badgeColor: 'bg-info/20 text-info'
-    },
-    design_change: {
-      icon: <Palette className="w-4 h-4" />,
-      label: 'Cambio de diseño',
-      color: 'bg-purple-100 border-purple-300 dark:bg-purple-950 dark:border-purple-800',
-      textColor: 'text-purple-700 dark:text-purple-400',
-      badgeColor: 'bg-purple-500/20 text-purple-700 dark:text-purple-400'
-    },
-    thread_change: {
-      icon: <Scissors className="w-4 h-4" />,
-      label: 'Cambio de hilo',
-      color: 'bg-warning/10 border-warning/30',
-      textColor: 'text-warning',
-      badgeColor: 'bg-warning/20 text-warning'
-    },
-    fluctuation: {
-      icon: <Zap className="w-4 h-4" />,
-      label: 'Fluctuación',
-      color: 'bg-muted border-border',
-      textColor: 'text-muted-foreground',
-      badgeColor: 'bg-muted text-muted-foreground'
-    },
-    stopped: {
-      icon: <AlertCircle className="w-4 h-4" />,
-      label: 'Máquina detenida',
-      color: 'bg-destructive/10 border-destructive/30',
-      textColor: 'text-destructive',
-      badgeColor: 'bg-destructive text-destructive-foreground'
-    },
-    anomaly: {
-      icon: <Zap className="w-4 h-4" />,
-      label: 'Corriente anómala',
-      color: 'bg-info/10 border-info/30',
-      textColor: 'text-info',
-      badgeColor: 'bg-info/20 text-info'
-    },
-    info: {
-      icon: <Info className="w-4 h-4" />,
-      label: 'Inicio de turno',
-      color: 'bg-primary/10 border-primary/30',
-      textColor: 'text-primary',
-      badgeColor: 'bg-primary/20 text-primary'
-    },
-    unknown: {
-      icon: <Info className="w-4 h-4" />,
-      label: 'Sin clasificar',
-      color: 'bg-yellow-100 border-yellow-300 dark:bg-yellow-950 dark:border-yellow-800',
-      textColor: 'text-yellow-700 dark:text-yellow-400',
-      badgeColor: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400'
-    }
-  };
 
   const formatDuration = (seconds: number): string => {
     if (seconds < 60) return `${seconds}s`;
@@ -87,76 +86,78 @@ export function AlertsList({ alerts, onResolveAlert }: AlertsListProps) {
   const filteredAlerts = filter === 'all' ? alerts : alerts.filter(a => a.type === filter);
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">Alertas y Eventos</h3>
-          <p className="text-sm text-muted-foreground">
-            {filteredAlerts.length} {filter === 'all' ? 'eventos' : 'filtrados'}
-          </p>
-        </div>
+    <div className="bg-card rounded-lg border border-border p-6 shadow-md">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h3 className="text-lg font-bold text-foreground">
+          📋 Eventos Recientes
+        </h3>
+        
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as AlertType | 'all')}
-          className="px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-4 py-2 text-sm border-2 border-border rounded-lg bg-background text-foreground font-medium hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition"
         >
-          <option value="all">Todos</option>
-          <option value="thread_break">🔴 Roturas</option>
-          <option value="frame_change">🔄 Bastidores</option>
-          <option value="design_change">🎨 Diseños</option>
-          <option value="thread_change">🧵 Hilos</option>
+          <option value="all">📋 Todos los eventos</option>
+          <option value="thread_break">🔴 Solo roturas</option>
+          <option value="frame_change">🔄 Cambio bastidor</option>
+          <option value="design_change">🎨 Cambio diseño</option>
+          <option value="thread_change">🧵 Cambio hilo</option>
+          <option value="stopped">🚨 Detenida</option>
+          <option value="anomaly">⚡ Anomalía</option>
           <option value="unknown">❓ Sin clasificar</option>
         </select>
       </div>
 
-      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+      <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
         {filteredAlerts.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No hay eventos de este tipo</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <div className="text-4xl mb-3">✅</div>
+            <p className="font-medium">No hay eventos de este tipo</p>
           </div>
         ) : (
           filteredAlerts.map((alert) => {
             const config = eventConfig[alert.type];
+            
             return (
-              <div
+              <div 
                 key={alert.id}
-                className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${config.color}`}
+                className={`p-4 rounded-lg border-2 ${config.color} transition-all hover:shadow-md`}
               >
-                <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${config.badgeColor} flex-shrink-0`}>
-                    {config.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className={`font-semibold text-sm ${config.textColor}`}>{config.label}</p>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{alert.timestamp}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{alert.machine}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Duración: {formatDuration(alert.duration)}</p>
-                    
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        alert.status === 'active' 
-                          ? 'bg-destructive/10 text-destructive' 
-                          : 'bg-success/10 text-success'
-                      }`}>
-                        {alert.status === 'active' ? 'Activa' : 'Resuelta'}
-                      </span>
-                      {alert.priority === 'HIGH' && alert.status === 'active' && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-destructive text-destructive-foreground">
-                          Urgente
-                        </span>
-                      )}
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3 flex-1">
+                    <span className="text-2xl">{config.emoji}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className={`font-semibold ${config.textColor}`}>
+                          {config.label}
+                        </p>
+                        {config.priority === 'HIGH' && (
+                          <span className="px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                            URGENTE
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-foreground/70">
+                        {alert.machine} • {formatDuration(alert.duration)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{alert.timestamp}</p>
                     </div>
                   </div>
+                  
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2 ${
+                    alert.status === 'active' 
+                      ? 'bg-red-500 text-white' 
+                      : 'bg-green-500 text-white'
+                  }`}>
+                    {alert.status === 'active' ? 'Activa' : 'Resuelta'}
+                  </span>
                 </div>
                 
                 {alert.type === 'thread_break' && alert.status === 'active' && onResolveAlert && (
-                  <Button
+                  <Button 
                     onClick={() => onResolveAlert(alert.id)}
+                    className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white font-medium"
                     size="sm"
-                    className="w-full mt-3 bg-destructive hover:bg-destructive/90"
                   >
                     🔧 Marcar como resuelta
                   </Button>
@@ -165,6 +166,13 @@ export function AlertsList({ alerts, onResolveAlert }: AlertsListProps) {
             );
           })
         )}
+      </div>
+      
+      <div className="mt-4 pt-4 border-t border-border text-center">
+        <p className="text-sm text-muted-foreground">
+          Mostrando <span className="font-bold text-foreground">{filteredAlerts.length}</span> de{' '}
+          <span className="font-bold text-foreground">{alerts.length}</span> eventos
+        </p>
       </div>
     </div>
   );

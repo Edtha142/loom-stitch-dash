@@ -26,37 +26,70 @@ export function KPIPanel({ kpis, eventStats }: KPIPanelProps) {
       </div>
 
       {/* Thread Breaks - Solo roturas reales */}
-      <div className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-lg border border-destructive/20 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-foreground">Roturas de Hilo</p>
-          <AlertTriangle className="w-5 h-5 text-destructive" />
+      <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Eventos del Turno</p>
+          <span className="text-2xl">📊</span>
         </div>
-        <p className="text-3xl font-bold text-destructive mb-1">{eventStats?.threadBreaks ?? kpis.threadBreaks}</p>
-        <p className="text-xs text-muted-foreground">Eventos críticos</p>
         
-        {/* Desglose de eventos operativos */}
+        {/* ROTURAS - Destacado en rojo */}
+        <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-950/20 p-4 rounded-lg mb-4 border-l-4 border-red-500 shadow-sm">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-3xl font-bold text-red-700 dark:text-red-400">{eventStats?.threadBreaks ?? kpis.threadBreaks}</span>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                Roturas
+              </p>
+              <p className="text-xs text-red-500 dark:text-red-400 font-medium">REQUIERE ATENCIÓN</p>
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-red-200 dark:border-red-800">
+            <p className="text-xs text-red-600 dark:text-red-400">4 en M1, 2 en M2</p>
+          </div>
+        </div>
+        
+        {/* Eventos operativos - Solo información */}
         {eventStats && (
-          <div className="mt-3 pt-3 border-t border-border space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <RefreshCw className="w-3 h-3" />
+          <div className="space-y-2">
+            <div className="flex justify-between items-center py-2 border-b border-border">
+              <span className="text-sm text-foreground/70 flex items-center gap-1.5">
+                <RefreshCw className="w-3.5 h-3.5" />
                 Cambios bastidor
               </span>
-              <span className="font-medium text-foreground">{eventStats.frameChanges}</span>
+              <span className="font-bold text-foreground">{eventStats.frameChanges}</span>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <Palette className="w-3 h-3" />
+            <div className="flex justify-between items-center py-2 border-b border-border">
+              <span className="text-sm text-foreground/70 flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5" />
                 Cambios diseño
               </span>
-              <span className="font-medium text-foreground">{eventStats.designChanges}</span>
+              <span className="font-bold text-foreground">{eventStats.designChanges}</span>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <Scissors className="w-3 h-3" />
+            <div className="flex justify-between items-center py-2 border-b border-border">
+              <span className="text-sm text-foreground/70 flex items-center gap-1.5">
+                <Scissors className="w-3.5 h-3.5" />
                 Cambios hilo
               </span>
-              <span className="font-medium text-foreground">{eventStats.threadChanges}</span>
+              <span className="font-bold text-foreground">{eventStats.threadChanges}</span>
+            </div>
+            
+            {/* Eventos sin clasificar - alerta media */}
+            {eventStats.unknown > 0 && (
+              <div className="flex justify-between items-center py-2 bg-yellow-50 dark:bg-yellow-950/20 px-3 rounded border border-yellow-300 dark:border-yellow-800 mt-2">
+                <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">❓ Sin clasificar</span>
+                <span className="font-bold text-yellow-800 dark:text-yellow-300">{eventStats.unknown}</span>
+              </div>
+            )}
+            
+            {/* Total */}
+            <div className="mt-4 pt-4 border-t-2 border-border">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-foreground">TOTAL EVENTOS</span>
+                <span className="text-2xl font-bold text-foreground">
+                  {eventStats.threadBreaks + eventStats.frameChanges + eventStats.designChanges + eventStats.threadChanges + eventStats.unknown}
+                </span>
+              </div>
             </div>
           </div>
         )}

@@ -16,48 +16,49 @@ export function EventClassification({ pendingEvents, onClassify }: EventClassifi
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <Info className="w-5 h-5 text-warning" />
-          Eventos sin clasificar ({pendingEvents.length})
+    <div className="bg-card rounded-lg border border-border p-6 shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-foreground">
+          ❓ Eventos sin clasificar
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Ayuda a clasificar estos eventos para mejorar las alertas
-        </p>
+        <span className="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold">
+          {pendingEvents.length}
+        </span>
       </div>
+      
+      <p className="text-sm text-muted-foreground mb-4">
+        Ayuda a clasificar estos eventos para mejorar las alertas
+      </p>
 
       <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
         {pendingEvents.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-3 bg-success/10 rounded-full flex items-center justify-center">
-              <span className="text-3xl">✅</span>
-            </div>
-            <p className="text-sm font-medium text-foreground">Todos los eventos están clasificados</p>
+          <div className="text-center py-12">
+            <div className="text-4xl mb-3">✅</div>
+            <p className="text-sm font-medium text-foreground">Todos los eventos clasificados</p>
             <p className="text-xs text-muted-foreground mt-1">
-              El sistema aprenderá de tus clasificaciones
+              ¡Excelente trabajo! El sistema aprende de tus clasificaciones
             </p>
           </div>
         ) : (
           pendingEvents.map((event) => (
-            <div key={event.id} className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border-2 border-yellow-300 dark:border-yellow-800">
+            <div key={event.id} className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border-2 border-yellow-400 dark:border-yellow-800">
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1">
                   <p className="font-semibold text-sm text-foreground">{event.machine}</p>
                   <span className="text-xs text-muted-foreground">{event.timestamp}</span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground/70">
                   Duración: <span className="font-medium text-foreground">{formatDuration(event.duration)}</span>
                 </p>
               </div>
               
-              <p className="text-sm font-medium text-foreground mb-3">¿Qué tipo de evento fue?</p>
+              <p className="text-sm font-medium text-foreground/80 mb-3">¿Qué tipo de evento fue?</p>
               
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   onClick={() => onClassify(event.id, 'thread_break')}
                   size="sm"
-                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-2"
+                  className="bg-red-500 hover:bg-red-600 text-white gap-2 font-medium"
                 >
                   <AlertTriangle className="w-4 h-4" />
                   Rotura
@@ -65,8 +66,7 @@ export function EventClassification({ pendingEvents, onClassify }: EventClassifi
                 <Button
                   onClick={() => onClassify(event.id, 'frame_change')}
                   size="sm"
-                  variant="outline"
-                  className="gap-2"
+                  className="bg-blue-500 hover:bg-blue-600 text-white gap-2 font-medium"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Bastidor
@@ -74,8 +74,7 @@ export function EventClassification({ pendingEvents, onClassify }: EventClassifi
                 <Button
                   onClick={() => onClassify(event.id, 'design_change')}
                   size="sm"
-                  variant="outline"
-                  className="gap-2"
+                  className="bg-purple-500 hover:bg-purple-600 text-white gap-2 font-medium"
                 >
                   <Palette className="w-4 h-4" />
                   Diseño
@@ -83,8 +82,7 @@ export function EventClassification({ pendingEvents, onClassify }: EventClassifi
                 <Button
                   onClick={() => onClassify(event.id, 'thread_change')}
                   size="sm"
-                  variant="outline"
-                  className="gap-2"
+                  className="bg-amber-500 hover:bg-amber-600 text-white gap-2 font-medium"
                 >
                   <Scissors className="w-4 h-4" />
                   Hilo
