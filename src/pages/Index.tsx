@@ -1,51 +1,95 @@
-import { useState, useEffect } from 'react';
-import { DashboardHeader } from '@/components/DashboardHeader';
+import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { mockData } from "@/data/mockData";
+import { DashboardData, AlertType } from "@/types/machine";
+import { useAuth } from "@/hooks/useAuth";
 import { MachineCard } from '@/components/MachineCard';
 import { CurrentChart } from '@/components/CurrentChart';
 import { KPIPanel } from '@/components/KPIPanel';
 import { MachineComparison } from '@/components/MachineComparison';
 import { AlertsList } from '@/components/AlertsList';
 import { DailySummary } from '@/components/DailySummary';
+import DashboardHeader from "@/components/DashboardHeader";
 import { EventClassification } from '@/components/EventClassification';
-import { mockData } from '@/data/mockData';
-import { DashboardData, AlertType } from '@/types/machine';
-import { toast } from '@/hooks/use-toast';
+import { RegisterEventModal } from "@/components/machines/RegisterEventModal";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [data, setData] = useState<DashboardData>(mockData);
   const [selectedMachine, setSelectedMachine] = useState('m1');
   const [isConnected, setIsConnected] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [registerEventOpen, setRegisterEventOpen] = useState(false);
+  const [selectedMachineForEvent, setSelectedMachineForEvent] = useState<string>("");
 
-  const handleClassifyEvent = (eventId: string | number, type: AlertType) => {
-    setData(prevData => ({
-      ...prevData,
-      alerts: prevData.alerts.map(alert => 
-        alert.id === eventId 
-          ? { ...alert, type, status: 'resolved' as const, priority: type === 'thread_break' ? 'HIGH' as const : 'LOW' as const }
-          : alert
-      )
+  const handleRegisterEvent = (machineName: string) => {
+    setSelectedMachineForEvent(machineName);
+    setRegisterEventOpen(true);
+  };
+
+  const handleEventRegistered = (eventType: AlertType, comment: string) => {
+    const newAlert = {
+      id: Date.now(),
+      timestamp: new Date().toLocaleTimeString('es-ES'),
+      type: eventType,
+      machine: selectedMachineForEvent,
+      duration: 0,
+      status: 'active' as const,
+      priority: (eventType === 'thread_break' || eventType === 'anomaly') ? 'HIGH' as const : 'LOW' as const,
+      needsAlert: eventType === 'thread_break' || eventType === 'anomaly',
+    };
+
+    setData(prev => ({
+      ...prev,
+      alerts: [newAlert, ...prev.alerts],
     }));
-    
+
     toast({
-      title: "Evento clasificado",
-      description: "El evento ha sido clasificado correctamente.",
+      title: "Evento registrado",
+      description: `${selectedMachineForEvent} - ${getEventLabel(eventType)}`,
     });
   };
 
+  const getEventLabel = (type: AlertType): string => {
+    const labels: Record<AlertType, string> = {
+      thread_break: 'Rotura de hilo',
+      frame_change: 'Cambio de bastidor',
+      design_change: 'Cambio de diseño',
+      thread_change: 'Cambio de hilo',
+      fluctuation: 'Fluctuación',
+      stopped: 'Mantenimiento',
+      anomaly: 'Falla mecánica',
+      info: 'Información',
+      unknown: 'Sin clasificar',
+    };
+    return labels[type] || type;
+  };
+
+  const handleClassifyEvent = (eventId: string | number, type: AlertType) => {
+    setData(prev => ({
+      ...prev,
+      alerts: prev.alerts.map(alert =>
+        alert.id === eventId
+          ? { ...alert, type, status: 'resolved' as const }
+          : alert
+      ),
+    }));
+  };
+
   const handleResolveAlert = (alertId: string | number) => {
-    setData(prevData => ({
-      ...prevData,
-      alerts: prevData.alerts.map(alert => 
-        alert.id === alertId 
+    setData(prev => ({
+      ...prev,
+      alerts: prev.alerts.map(alert =>
+        alert.id === alertId
           ? { ...alert, status: 'resolved' as const }
           : alert
-      )
+      ),
     }));
-    
+
     toast({
       title: "Alerta resuelta",
-      description: "La alerta ha sido marcada como resuelta.",
+      description: "La alerta ha sido marcada como resuelta",
     });
   };
 
@@ -60,7 +104,7 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Simulate real-time data updates
+  // Simulate real-time data updates (without auto-alerts)
   useEffect(() => {
     const interval = setInterval(() => {
       setData(prevData => {
@@ -90,7 +134,6 @@ const Index = () => {
         const newDataPoint = {
           timestamp: new Date().toLocaleTimeString(),
           current: newMachines[0].current,
-          isAlert: Math.random() < 0.01
         };
 
         const newCurrentData = [...prevData.currentData.slice(1), newDataPoint];
@@ -106,10 +149,9 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
-        <DashboardHeader isConnected={false} />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
@@ -125,65 +167,82 @@ const Index = () => {
     );
   }
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader isConnected={isConnected} />
-      
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Panel 1: Machine Status Cards - Full width */}
-          <div className="lg:col-span-3">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Estado Actual de Máquinas</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {data.machines.map(machine => (
-                <MachineCard key={machine.id} machine={machine} />
-              ))}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <DashboardHeader isConnected={isConnected} />
+        
+        <main className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Panel 1: Machine Status Cards - Full width */}
+            <div className="lg:col-span-3">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Estado Actual de Máquinas</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {data.machines.map(machine => (
+                  <MachineCard 
+                    key={machine.id} 
+                    machine={machine}
+                    onRegisterEvent={() => handleRegisterEvent(machine.name)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Panel 2: Current Chart - 2 columns */}
-          <div className="lg:col-span-2">
-            <CurrentChart
-              data={data.currentData}
-              selectedMachine={selectedMachine}
-              onMachineChange={setSelectedMachine}
-            />
-          </div>
-
-          {/* Panel 3: KPI Panel - 1 column */}
-          <div className="lg:col-span-1">
-            <div className="bg-card rounded-lg border border-border p-6 mb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">KPIs del Turno Actual</h3>
-              <KPIPanel kpis={data.kpis} eventStats={data.eventStats} />
-            </div>
-          </div>
-
-          {/* Panel 4: Machine Comparison - 2 columns */}
-          <div className="lg:col-span-2">
-            <MachineComparison machines={data.machines} />
-          </div>
-
-          {/* Panel 5: Alerts List - 1 column */}
-          <div className="lg:col-span-1">
-            <AlertsList alerts={data.alerts} onResolveAlert={handleResolveAlert} />
-          </div>
-
-          {/* Panel 6: Event Classification - 2 columns */}
-          {pendingEvents.length > 0 && (
+            {/* Panel 2: Current Chart - 2 columns */}
             <div className="lg:col-span-2">
-              <EventClassification 
-                pendingEvents={pendingEvents} 
-                onClassify={handleClassifyEvent}
+              <CurrentChart
+                data={data.currentData}
+                selectedMachine={selectedMachine}
+                onMachineChange={setSelectedMachine}
               />
             </div>
-          )}
 
-          {/* Panel 7: Daily Summary - Full width or adjust as needed */}
-          <div className="lg:col-span-3">
-            <DailySummary summary={data.dailySummary} />
+            {/* Panel 3: KPI Panel - 1 column */}
+            <div className="lg:col-span-1">
+              <div className="bg-card rounded-lg border border-border p-6 mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">KPIs del Turno Actual</h3>
+                <KPIPanel kpis={data.kpis} eventStats={data.eventStats} />
+              </div>
+            </div>
+
+            {/* Panel 4: Machine Comparison - 2 columns */}
+            <div className="lg:col-span-2">
+              <MachineComparison machines={data.machines} />
+            </div>
+
+            {/* Panel 5: Alerts List - 1 column */}
+            <div className="lg:col-span-1">
+              <AlertsList alerts={data.alerts} onResolveAlert={handleResolveAlert} />
+            </div>
+
+            {/* Panel 6: Event Classification - 2 columns */}
+            {pendingEvents.length > 0 && (
+              <div className="lg:col-span-2">
+                <EventClassification 
+                  pendingEvents={pendingEvents} 
+                  onClassify={handleClassifyEvent}
+                />
+              </div>
+            )}
+
+            {/* Panel 7: Daily Summary - Full width or adjust as needed */}
+            <div className="lg:col-span-3">
+              <DailySummary summary={data.dailySummary} />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+
+      <RegisterEventModal
+        open={registerEventOpen}
+        onOpenChange={setRegisterEventOpen}
+        machineName={selectedMachineForEvent}
+        onRegister={handleEventRegistered}
+      />
     </div>
   );
 };

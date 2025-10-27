@@ -1,71 +1,82 @@
-import { useState, useEffect } from 'react';
-import { Factory, Clock, User } from 'lucide-react';
-import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { LogOut, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardHeaderProps {
   isConnected: boolean;
 }
 
-export function DashboardHeader({ isConnected }: DashboardHeaderProps) {
-  const [currentTime, setCurrentTime] = useState(new Date());
+const DashboardHeader = ({ isConnected }: DashboardHeaderProps) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
-    return () => clearInterval(timer);
-  }, []);
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'supervisor':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'operador':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return '👨‍💻 Administrador';
+      case 'supervisor':
+        return '👨‍💼 Supervisor';
+      case 'operador':
+        return '👤 Operador';
+      default:
+        return role;
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Title */}
+    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background p-6 rounded-xl border border-primary/20 shadow-sm">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Dashboard Monitoreo IoT
+          </h1>
           <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Factory className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">Monitor IoT Producción</h1>
-              <p className="text-xs text-muted-foreground">Empresa de Bordados</p>
-            </div>
-          </div>
-
-          {/* Center - Shift and Time Info */}
-          <div className="hidden md:flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <div className="text-sm">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary mr-2">
-                  Turno Día
-                </span>
-                <span className="font-mono text-foreground">{format(currentTime, 'HH:mm:ss')}</span>
-                <span className="text-muted-foreground ml-2">{format(currentTime, 'dd MMM yyyy')}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right - Connection Status and User */}
-          <div className="flex items-center gap-4">
-            {/* Connection Status */}
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success pulse-success' : 'bg-destructive'}`} />
-              <span className="text-sm text-muted-foreground hidden sm:inline">
-                {isConnected ? 'Conectado' : 'Desconectado'}
+              <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+              <span className="text-sm font-medium text-muted-foreground">
+                {isConnected ? 'Sistema conectado' : 'Sistema desconectado'}
               </span>
             </div>
-
-            {/* User Avatar */}
-            <button className="flex items-center gap-2 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-sm font-medium hidden sm:inline">GA</span>
-            </button>
+            {user && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">{user.fullName}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full border font-medium ${getRoleBadgeColor(user.role)}`}>
+                    {getRoleLabel(user.role)}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
+        <Button variant="outline" onClick={handleLogout} className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Cerrar Sesión
+        </Button>
       </div>
-    </header>
+    </div>
   );
-}
+};
+
+export default DashboardHeader;

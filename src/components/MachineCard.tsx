@@ -1,11 +1,13 @@
 import { Machine } from '@/types/machine';
-import { Activity, AlertCircle } from 'lucide-react';
+import { Activity, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface MachineCardProps {
   machine: Machine;
+  onRegisterEvent: () => void;
 }
 
-export function MachineCard({ machine }: MachineCardProps) {
+export function MachineCard({ machine, onRegisterEvent }: MachineCardProps) {
   const getStatusColor = (status: Machine['status']) => {
     switch (status) {
       case 'RUNNING':
@@ -33,8 +35,6 @@ export function MachineCard({ machine }: MachineCardProps) {
     const minutes = Math.floor((seconds % 3600) / 60);
     return `${hours}h ${minutes}min`;
   };
-
-  const isPulse = machine.status === 'RUNNING';
 
   return (
     <div className="bg-card rounded-lg border border-border p-4 hover:shadow-md transition-all duration-300">
@@ -70,13 +70,18 @@ export function MachineCard({ machine }: MachineCardProps) {
           Tiempo en estado: <span className="font-medium text-foreground">{formatTime(machine.timeInState)}</span>
         </div>
 
-        {/* Alert Badge */}
-        {machine.hasAlert && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive rounded-lg text-xs font-medium">
-            <AlertCircle className="w-3.5 h-3.5" />
-            Rotura detectada
-          </div>
-        )}
+        {/* Register Event Button */}
+        <Button
+          variant="outline"
+          className="w-full mt-2 gap-2 border-amber-500 text-amber-700 hover:bg-amber-50"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRegisterEvent();
+          }}
+        >
+          <AlertTriangle className="h-4 w-4" />
+          Registrar Evento
+        </Button>
       </div>
     </div>
   );
